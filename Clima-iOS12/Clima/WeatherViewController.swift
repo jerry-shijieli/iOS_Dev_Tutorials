@@ -17,11 +17,12 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     let WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
     let APP_ID = "e72ca729af228beabd5d20e3b7749713"
     /***Get your own App ID at https://openweathermap.org/appid ****/
+    let RELATIVE_ZERO_DEGREE = 273.15
     
 
     //TODO: Declare instance variables here
     let locationManager = CLLocationManager()
-
+    let weatherDataModel = WeatherDataModel()
     
     //Pre-linked IBOutlets
     @IBOutlet weak var weatherIcon: UIImageView!
@@ -74,7 +75,12 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
     //Write the updateWeatherData method here:
     func updateWeatherData (json: JSON) {
-        let tempResult = json["main"]["temp"]
+        if let tempResult = json["main"]["temp"].double {
+            weatherDataModel.temperature = Int(tempResult - RELATIVE_ZERO_DEGREE)
+            weatherDataModel.city = json["name"].stringValue
+            weatherDataModel.condition = json["weather"][0]["id"].intValue
+            weatherDataModel.weatherIconName = weatherDataModel.updateWeatherIcon(condition: weatherDataModel.condition)
+        }
     }
 
     
