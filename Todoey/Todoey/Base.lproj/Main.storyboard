@@ -8,10 +8,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--To-->
+        <!--Todoey-->
         <scene sceneID="XiC-tf-1Iq">
             <objects>
-                <tableViewController title="To" id="0Ml-KB-5hm" customClass="TodoListViewController" customModule="Todoey" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController title="To" id="0Ml-KB-5hm" userLabel="Todoey" customClass="TodoListViewController" customModule="Todoey" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="at1-PX-MyY">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -31,7 +31,14 @@
                             <outlet property="delegate" destination="0Ml-KB-5hm" id="vtl-1K-hY0"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Todoey" id="Fca-zS-FY8"/>
+                    <navigationItem key="navigationItem" title="Todoey" id="Fca-zS-FY8">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="NfR-KC-dLU">
+                            <color key="tintColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <connections>
+                                <action selector="addButtonPressed:" destination="0Ml-KB-5hm" id="agg-om-dp7"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iBc-E3-NDT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
