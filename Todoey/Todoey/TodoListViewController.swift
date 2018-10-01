@@ -11,10 +11,15 @@ import UIKit
 class TodoListViewController: UITableViewController {
     
     var itemArray = ["Find Mike", "Buy Eggs", "Destroy Demogorgon"]
+    let storageKey : String = "TodoListArray" // key for local storage retrieval
+    let defaults = UserDefaults.standard // local storage
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if let items = defaults.array(forKey: storageKey) as? [String]{
+            itemArray = items
+        }
     }
 
     // MARK: - Table view data source
@@ -55,7 +60,7 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default, handler: {
             (action) in
             self.itemArray.append(textField.text!)
-            
+            self.defaults.set(self.itemArray, forKey: self.storageKey)
             self.tableView.reloadData()
         })
         
