@@ -15,21 +15,8 @@ class TodoListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        print(self.dataFilePath)
-        
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        
-        let newItem1 = Item()
-        newItem1.title = "Buy Eggs"
-        itemArray.append(newItem1)
-        
-        let newItem2 = Item()
-        newItem2.title = "Destroy Demogorgon"
-        itemArray.append(newItem2)
-        
+
+        loadItems()
     }
 
     // MARK: - Table view data source
@@ -38,7 +25,6 @@ class TodoListViewController: UITableViewController {
         // #warning Incomplete implementation, return the number of rows
         return itemArray.count
     }
-
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
@@ -98,5 +84,16 @@ class TodoListViewController: UITableViewController {
         }
         
         self.tableView.reloadData()
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error decoding item array: \(error)")
+            }
+        }
     }
 }
