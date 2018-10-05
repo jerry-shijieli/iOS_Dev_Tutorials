@@ -16,7 +16,8 @@ class TodoListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        setupLongPressGesture()
+        
         loadItems()
     }
 
@@ -45,6 +46,23 @@ class TodoListViewController: UITableViewController {
         self.saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func setupLongPressGesture() {
+        let longPressGesture:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.handleLongPress))
+        longPressGesture.minimumPressDuration = 1.0 // 1 second press
+        self.tableView.addGestureRecognizer(longPressGesture)
+    }
+    
+    @objc func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer){
+        if gestureRecognizer.state == .ended {
+            let touchPoint = gestureRecognizer.location(in: self.tableView)
+            if let indexPath = tableView.indexPathForRow(at: touchPoint) {
+                context.delete(itemArray[indexPath.row])
+                itemArray.remove(at: indexPath.row)
+                saveItems()
+            }
+        }
     }
     
     // MARK: -Add New Items
