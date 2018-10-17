@@ -47,6 +47,9 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="searchBar" destination="1Tu-ag-AAb" id="F1z-Y8-HBh"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iBc-E3-NDT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
