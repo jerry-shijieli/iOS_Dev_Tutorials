@@ -21,16 +21,54 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         imagePicker.delegate = self
         imagePicker.sourceType = .camera
-        imagePicker.allowsEditing = false
+        imagePicker.allowsEditing = true
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let userPickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
         {
             imageView.image = userPickedImage
+            imagePicker.dismiss(animated: true, completion: nil)
+            
+            guard let ciImage = CIImage(image: userPickedImage) else {
+                fatalError("Couldn't convert UIImage to CIImage!")
+            }
+            
+            detect(image: ciImage)
         }
         
         imagePicker.dismiss(animated: true, completion: nil)
+    }
+    
+    func detect(image: CIImage) {
+        guard let vmodel = try? VNCoreMLModel(for: Inceptionv3().model) else {
+            fatalError("Cannot load ML model")
+        }
+        
+        let request = VNCoreMLRequest(model: vmodel){
+            request, error in
+            
+            guard let results = request.results as? [VNClassificationObservation], let topResult = results.first
+                else {
+                    fatalError("Unexpected result type from VNCoreMLRequest")
+            }
+            
+            if topResult.identifier.count > 0 {
+                DispatchQueue.main.async {
+                    self.navigationItem.title = topResult.identifier
+                    self.navigationController?.navigationBar.barTintColor = UIColor.blue
+                    self.navigationController?.navigationBar.isTranslucent = false
+                }
+            }
+        }
+        
+        let handler = VNImageRequestHandler(ciImage: image)
+        
+        do {
+            try handler.perform([request])
+        } catch {
+            print(error)
+        }
     }
 
     @IBAction func cameraTapped(_ sender: UIBarButtonItem) {
