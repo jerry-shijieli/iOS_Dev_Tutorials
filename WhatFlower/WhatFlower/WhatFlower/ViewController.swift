@@ -11,6 +11,8 @@ import CoreML
 import Vision
 import Alamofire
 import SwiftyJSON
+import SDWebImage
+import ColorThiefSwift
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -77,12 +79,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let parameters : [String:String] = [
             "format" : "json",
             "action" : "query",
-            "prop" : "extracts",
+            "prop" : "extracts|pageimages",
             "exintro" : "",
             "explaintext" : "",
             "titles" : flowerName,
-            "indexpageids" : "",
             "redirects" : "1",
+            "pithumbsize" :"500",
+            "indexpageids" : "",
             ]
         
         Alamofire.request(wikipediaURl, method: .get, parameters: parameters).responseJSON(completionHandler: {
@@ -91,13 +94,28 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             if response.result.isSuccess {
                 let flowerJSON: JSON = JSON(response.result.value!)
                 let pageid = flowerJSON["query"]["pageids"][0].stringValue
-                let flowerDescription = flowerJSON["query"]["pages"][pageid]["extract"].stringValue
+                let pageContent: JSON = flowerJSON["query"]["pages"][pageid]
+                let flowerImageURL = pageContent["thumbnail"]["source"].stringValue
+                let flowerDescription = pageContent["extract"].stringValue
                 
                 self.infoLabel.text = flowerDescription
                 
-                if let pic = self.pickedImage {
-                    self.imageView.image = pic
-                }
+                self.imageView.sd_setImage(with: URL(string: flowerImageURL), completed: { (image, error, cache, url) in
+                    
+                    if let currentImage = self.imageView.image {
+                        
+                        guard let dominantColor = ColorThief.getColor(from: currentImage) else {
+                            fatalError("Unable to get dominant color")
+                        }
+                        
+                        DispatchQueue.main.async {
+                            self.navigationController?.navigationBar.isTranslucent = true
+                            self.navigationController?.navigationBar.barTintColor = dominantColor.makeUIColor()
+                        }
+                    } else {
+                        self.imageView.image = self.pickedImage
+                    }
+                })
             } else {
                 self.infoLabel.text = (response.result.error as! String)
             }
