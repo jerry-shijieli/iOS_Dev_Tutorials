@@ -7,16 +7,40 @@
 //
 
 import UIKit
+import SwifteriOS
 
 class ViewController: UIViewController {
     
     @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var textField: UITextField!
     @IBOutlet weak var sentimentLabel: UILabel!
+    
+    var swifter: Swifter?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        guard let filepath = Bundle.main.path(forResource: "secret", ofType: "plist") else {
+            fatalError("Cannot find the Property List file for API Keys!")
+        }
+        
+        if let keys = NSDictionary(contentsOfFile: filepath) {
+            if let API_Key = keys["API_Key"] as? String, let API_Secret_Key = keys["API_Secret_Key"] as? String {
+            
+                swifter = Swifter(consumerKey: API_Key, consumerSecret: API_Secret_Key)
+                
+                swifter?.searchTweet(using: "@Apple",  success: { (results, metadata) in
+                    print(results)
+                }) { (error) in
+                    print("There is an error with API request, \(error)")
+                }
+                
+            } else {
+                fatalError("Cannot find API Keys!")
+            }
+        } else {
+            fatalError("Cannot find API Keys!")
+        }
     }
 
     @IBAction func predictPressed(_ sender: Any) {
