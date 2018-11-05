@@ -27,6 +27,10 @@ class ViewController: UIViewController {
 
     @IBAction func predictPressed(_ sender: Any) {
     
+        fetchTweets()
+    }
+    
+    func fetchTweets() {
         if let searchText = textField.text {
             guard let filepath = Bundle.main.path(forResource: "secret", ofType: "plist") else {
                 fatalError("Cannot find the Property List file for API Keys!")
@@ -40,49 +44,19 @@ class ViewController: UIViewController {
                     swifter?.searchTweet(using: searchText, lang: "en", count: 100, tweetMode: .extended, success: { (results, metadata) in
                         
                         var tweets = [TwitterSentimentClassifierInput]()
-                        var sentimentScore : Double = 0.0
-
+                        
+                        
                         if let resultTweets = results.array {
                             for i in 0..<resultTweets.count {
                                 if let tweetText = resultTweets[i]["full_text"].string {
-                                    print(tweetText)
+                                    //print(tweetText)
                                     let tweetForClassification = TwitterSentimentClassifierInput(text: tweetText)
                                     tweets.append(tweetForClassification)
                                 }
                             }
                         }
-
-                        do {
-                            let predictions = try self.sentimentClassifier.predictions(inputs: tweets)
-                                for pred in predictions {
-                                    switch(pred.label) {
-                                    case "Pos": sentimentScore += 1
-                                    case "Neg": sentimentScore -= 1
-                                    default: sentimentScore += 0
-                                    }
-                                }
-                        }catch {
-                                print("Cannot make prediction!")
-                        }
-
-                        sentimentScore = sentimentScore / Double((tweets.count+1)) * 100
-                        print(sentimentScore)
                         
-                        if sentimentScore > 20 {
-                            self.sentimentLabel.text = "😍"
-                        } else if sentimentScore > 10 {
-                            self.sentimentLabel.text = "😀"
-                        } else if sentimentScore > 0 {
-                            self.sentimentLabel.text = "🙂"
-                        } else if sentimentScore == 0 {
-                            self.sentimentLabel.text = "😑"
-                        } else if sentimentScore > -10 {
-                            self.sentimentLabel.text = "☹️"
-                        } else if sentimentScore > -20 {
-                            self.sentimentLabel.text = "😡"
-                        } else {
-                            self.sentimentLabel.text = "👿"
-                        }
+                        self.makePrediction(with: tweets)   
                         
                     }) { (error) in
                         print("There is an error with API request, \(error)")
@@ -94,6 +68,47 @@ class ViewController: UIViewController {
             } else {
                 fatalError("Cannot find API Keys!")
             }
+        }
+    }
+    
+    func makePrediction(with tweets: [TwitterSentimentClassifierInput]) {
+        do {
+            var sentimentScore : Double = 0.0
+            
+            let predictions = try self.sentimentClassifier.predictions(inputs: tweets)
+            
+            for pred in predictions {
+                switch(pred.label) {
+                case "Pos": sentimentScore += 1
+                case "Neg": sentimentScore -= 1
+                default: sentimentScore += 0
+                }
+            }
+            
+            sentimentScore = sentimentScore / Double((tweets.count+1)) * 100
+            //print(sentimentScore)
+            
+            updateUI(with: sentimentScore)
+        }catch {
+            print("Cannot make prediction!")
+        }
+    }
+    
+    func updateUI(with sentimentScore: Double) {
+        if sentimentScore > 20 {
+            self.sentimentLabel.text = "😍"
+        } else if sentimentScore > 10 {
+            self.sentimentLabel.text = "😀"
+        } else if sentimentScore > 0 {
+            self.sentimentLabel.text = "🙂"
+        } else if sentimentScore == 0 {
+            self.sentimentLabel.text = "😑"
+        } else if sentimentScore > -10 {
+            self.sentimentLabel.text = "☹️"
+        } else if sentimentScore > -20 {
+            self.sentimentLabel.text = "😡"
+        } else {
+            self.sentimentLabel.text = "👿"
         }
     }
     
