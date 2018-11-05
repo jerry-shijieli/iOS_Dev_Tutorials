@@ -8,6 +8,7 @@
 
 import UIKit
 import SwifteriOS
+import CoreML
 
 class ViewController: UIViewController {
     
@@ -16,6 +17,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var sentimentLabel: UILabel!
     
     var swifter: Swifter?
+    
+    let sentimentClassifier = TwitterSentimentClassifier()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +32,11 @@ class ViewController: UIViewController {
             
                 swifter = Swifter(consumerKey: API_Key, consumerSecret: API_Secret_Key)
                 
-                swifter?.searchTweet(using: "@Apple",  success: { (results, metadata) in
-                    print(results)
+                let prediction = try! sentimentClassifier.prediction(text: "@apple is good")
+                print(prediction.label)
+                
+                swifter?.searchTweet(using: "@Apple", lang: "en", count: 100, tweetMode: .extended, success: { (results, metadata) in
+                    //print(results)
                 }) { (error) in
                     print("There is an error with API request, \(error)")
                 }
