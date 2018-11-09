@@ -20,21 +20,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Set the view's delegate
         sceneView.delegate = self
         
-        let cube = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0.01)
+        let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
         
-        let material = SCNMaterial()
-        
-        material.diffuse.contents = UIColor.red
-        
-        cube.materials = [material]
-        
-        let node = SCNNode()
-        
-        node.position = SCNVector3(x: 0, y: 0.1, z: -0.5)
-        
-        node.geometry = cube
-        
-        sceneView.scene.rootNode.addChildNode(node)
+        if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
+            
+            diceNode.position = SCNVector3(x: 0, y: 0, z: -0.1)
+            
+            sceneView.scene.rootNode.addChildNode(diceNode)
+        }
         
         sceneView.autoenablesDefaultLighting = true
     }
